@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Market Dashboard</h1>
+        <div class="last-updated" id="last-updated">Last Updated: N/A</div>
+
+        <nav class="main-nav">
+            <ul>
+                <li><a href="#" id="nav-home" data-view="home" class="active">Home</a></li>
+                <li><a href="#" id="nav-nse" data-view="nse">NSE</a></li>
+                <li><a href="#" id="nav-bse" data-view="bse">BSE</a></li>
+            </ul>
+        </nav>
+
+        <div class="content-area" id="dashboard-content">
+            </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
