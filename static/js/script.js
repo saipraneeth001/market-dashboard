@@ -1,12 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Set the interval for updating dashboard data (30 seconds)
     const updateInterval = 30000; // 30 seconds in milliseconds
+    
+    // Get references to DOM elements
     const dashboardContent = document.getElementById('dashboard-content');
     const lastUpdatedSpan = document.getElementById('last-updated');
     const navLinks = document.querySelectorAll('.main-nav a');
 
-    let currentView = 'home'; // Default view
+    // Initialize the current view to 'home'
+    let currentView = 'home'; 
 
-    // Templates for different views
+    // Template function for the 'Home' view (displays both NSE and BSE data, plus VIX)
     const homeTemplate = (data) => `
         <div class="card-container">
             <div class="card">
@@ -44,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     `;
 
+    // Template function for the 'NSE' view (displays only NSE data and VIX)
     const nseTemplate = (data) => `
         <div class="card-container">
             <div class="card full-width">
@@ -63,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     `;
 
+    // Template function for the 'BSE' view (displays only BSE data)
     const bseTemplate = (data) => `
         <div class="card-container">
             <div class="card full-width">
@@ -81,60 +87,70 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     `;
 
-    // Function to fetch data and update the display
+    // Function to fetch data from the backend API and update the dashboard display
     async function updateDashboard() {
-        let apiUrl = '';
-        let templateFunction;
+        let apiUrl = ''; // API endpoint to call
+        let templateFunction; // Template to use for rendering
 
+        // Determine the API URL and template function based on the current view
         if (currentView === 'home') {
-            apiUrl = '/api/data';
+            apiUrl = '/api/data'; // Fetches all data
             templateFunction = homeTemplate;
         } else if (currentView === 'nse') {
-            apiUrl = '/api/nse_data';
+            apiUrl = '/api/nse_data'; // Fetches only NSE data
             templateFunction = nseTemplate;
         } else if (currentView === 'bse') {
-            apiUrl = '/api/bse_data';
+            apiUrl = '/api/bse_data'; // Fetches only BSE data
             templateFunction = bseTemplate;
         }
 
         try {
+            // Fetch data from the Flask backend
             const response = await fetch(apiUrl);
+            // Check if the HTTP response was successful
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            // Parse the JSON response
             const data = await response.json();
-            console.log(`Received data for ${currentView}:`, data); // For debugging
+            console.log(`Received data for ${currentView}:`, data); // For debugging purposes
 
+            // Render the fetched data using the appropriate template
             dashboardContent.innerHTML = templateFunction(data);
             
+            // Update the "Last Updated" timestamp
             const now = new Date();
             lastUpdatedSpan.textContent = `Last Updated: ${now.toLocaleTimeString()}`;
 
         } catch (error) {
+            // Handle any errors during the fetch operation
             console.error(`Error fetching data for ${currentView}:`, error);
             dashboardContent.innerHTML = `<p class="error-message">Error loading data for ${currentView}. Please try again later.</p>`;
             lastUpdatedSpan.textContent = `Last Updated: Error (${new Date().toLocaleTimeString()})`;
         }
     }
 
-    // Event listeners for navigation links
+    // Add event listeners to navigation links
     navLinks.forEach(link => {
         link.addEventListener('click', function(event) {
             event.preventDefault(); // Prevent default link behavior (page reload)
 
-            // Remove active class from all links
+            // Remove 'active' class from all navigation links
             navLinks.forEach(item => item.classList.remove('active'));
-            // Add active class to the clicked link
+            // Add 'active' class to the clicked link to highlight it
             this.classList.add('active');
 
-            currentView = this.dataset.view; // Get the data-view attribute
-            updateDashboard(); // Update content for the new view immediately
+            // Update the current view based on the data-view attribute of the clicked link
+            currentView = this.dataset.view; 
+            // Immediately update the dashboard content for the new view
+            updateDashboard(); 
         });
     });
 
-    // Initialize the dashboard on page load (defaults to home view)
+    // Initialize the dashboard display when the page loads (defaults to 'home' view)
     updateDashboard();
 
-    // Set up interval to update the dashboard for the currently selected view
+    // Set up an interval to periodically update the dashboard data
+    // This will call updateDashboard() every 'updateInterval' milliseconds
     setInterval(updateDashboard, updateInterval);
 });

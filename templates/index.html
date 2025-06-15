@@ -4,25 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Market Dashboard</title>
+    <!-- Link to the external stylesheet for styling the dashboard -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>Market Dashboard</h1>
+        <!-- Display the last updated timestamp, updated by JavaScript -->
         <div class="last-updated" id="last-updated">Last Updated: N/A</div>
 
         <nav class="main-nav">
             <ul>
+                <!-- Navigation links to switch between different data views -->
                 <li><a href="#" id="nav-home" data-view="home" class="active">Home</a></li>
                 <li><a href="#" id="nav-nse" data-view="nse">NSE</a></li>
                 <li><a href="#" id="nav-bse" data-view="bse">BSE</a></li>
             </ul>
         </nav>
 
+        <!-- Content area where market data cards will be displayed -->
         <div class="content-area" id="dashboard-content">
-            </div>
+            <!-- Content will be dynamically loaded here by script.js -->
+        </div>
     </div>
 
+    <!-- Link to the JavaScript file that handles data fetching and UI updates -->
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
