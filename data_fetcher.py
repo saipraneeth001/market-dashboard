@@ -60,20 +60,8 @@ def fetch_data(retry_count=0, max_retries=1):
     """
     global api # Ensure we're using the global api instance
 
-    # Return default/N/A values if the api instance is not yet initialized
-    if not api or not api.is_logged_in(): # Assuming NorenApi has an is_logged_in() or similar
-        logging.warning("API not initialized or not logged in. Attempting to initialize...")
-        try:
-            initialize_shoonya_api()
-            # If initialization is successful, retry fetching data with the new API instance
-            return fetch_data(retry_count + 1, max_retries)
-        except Exception as e:
-            logging.error(f"Failed to initialize API during fetch attempt: {e}")
-            return {
-                "nse_ltp": "N/A", "nse_pdh": "N/A", "nse_pdl": "N/A", "nse_cdh": "N/A", "nse_cdl": "N/A", "nse_hh": "N/A", "nse_ll": "N/A", "nse_ill": "N/A", "nse_ihh": "N/A", "nse_c2c": "N/A",
-                "bse_ltp": "N/A", "bse_pdh": "N/A", "bse_pdl": "N/A", "bse_cdh": "N/A", "bse_cdl": "N/A", "bse_hh": "N/A", "bse_ll": "N/A", "bse_ill": "N/A", "bse_ihh": "N/A", "bse_c2c": "N/A",
-                "vix": "N/A"
-            }
+    # Removed the explicit api.is_logged_in() check.
+    # The try-except block around the API calls will now handle authentication issues.
 
     nse_exchange = "NSE"
     nse_token = "26000" 
@@ -106,9 +94,18 @@ def fetch_data(retry_count=0, max_retries=1):
     vix = "N/A"
 
     try:
+        # Check if api is None *before* making any calls that would use it
+        # This initial check remains important for when the app first starts and API might not be ready
+        if api is None:
+            raise Exception("API instance is None. Attempting initial authentication.")
+
         # Fetch historical data for NSE and BSE
-        nse_df_raw = get_time_series(nse_exchange, nse_token, days, interval)
-        bse_df_raw = get_time_series(bse_exchange, bse_token, days, interval)
+        nse_df_raw = api.get_time_price_series(exchange=nse_exchange, token=nse_token, 
+                                                starttime=(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days)).timestamp(), 
+                                                interval=interval)
+        bse_df_raw = api.get_time_price_series(exchange=bse_exchange, token=bse_token, 
+                                                starttime=(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days)).timestamp(), 
+                                                interval=interval)
 
         nse_df = pd.DataFrame(nse_df_raw) if nse_df_raw else None
         bse_df = pd.DataFrame(bse_df_raw) if bse_df_raw else None
